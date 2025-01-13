@@ -1,0 +1,198 @@
+/* Global Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+h1, h2, h3 {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Header Styles */
+header {
+    background-color: #6200ea;
+    padding: 20px;
+    color: white;
+    text-align: center;
+    font-size: 24px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+a.btn {
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: #6200ea;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+a.btn:hover {
+    background-color: #3700b3;
+    transform: scale(1.05);
+}
+
+a.btn:active {
+    transform: scale(1);
+}
+
+/* Forms */
+form {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+form:hover {
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+form input, form select, form textarea {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+form input[type="submit"] {
+    background-color: #03dac6;
+    color: white;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form input[type="submit"]:hover {
+    background-color: #018786;
+}
+
+form input:focus, form select:focus, form textarea:focus {
+    border-color: #6200ea;
+    outline: none;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+table th, table td {
+    padding: 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 16px;
+}
+
+table th {
+    background-color: #6200ea;
+    color: white;
+}
+
+table td {
+    background-color: #fafafa;
+}
+
+table tr:nth-child(even) td {
+    background-color: #f2f2f2;
+}
+
+table tr:hover td {
+    background-color: #f1f1f1;
+}
+
+/* Search Bar */
+input[type="search"] {
+    padding: 12px;
+    width: 250px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+/* Table Responsiveness */
+@media (max-width: 768px) {
+    table {
+        width: 100%;
+        display: block;
+        overflow-x: auto; /* Make table horizontally scrollable on small screens */
+        white-space: nowrap; /* Prevent text from wrapping in columns */
+    }
+
+    table th, table td {
+        font-size: 14px; /* Smaller font size on small screens */
+        padding: 10px;
+    }
+
+    /* Search Bar adjustment for mobile */
+    input[type="search"] {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    /* Adjust container width on small screens */
+    .container {
+        width: 90%;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    table th, table td {
+        font-size: 12px; /* Further reduce font size on very small screens */
+    }
+
+    input[type="search"] {
+        padding: 10px;
+    }
+
+    /* Adjust buttons on extra small screens */
+    a.btn {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+}

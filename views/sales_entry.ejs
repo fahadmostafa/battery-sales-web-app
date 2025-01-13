@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery Sales Entry</title>
+    <link rel="stylesheet" href="/style.css">  <!-- Link to your stylesheet -->
+</head>
+<body>
+    <header>
+        <h1>Battery Sales Entry</h1>
+    </header>
+
+    <div class="container">
+        <form action="/battery-sales-entry" method="POST">
+            <input type="text" name="car_brand" placeholder="Car Brand" required>
+            <input type="text" name="car_model" placeholder="Car Model" required>
+            <input type="number" name="car_year" placeholder="Car Year" required>
+            <input type="text" name="battery_brand" placeholder="Battery Brand" required>
+            <input type="text" name="battery_model" placeholder="Battery Model" required>
+            <input type="text" name="battery_ampere" placeholder="Battery Ampere" required>
+            <input type="text" name="battery_serial" placeholder="Battery Serial" required>
+            <input type="number" name="price_sold_at" placeholder="Price Sold At" required>
+            <input type="date" name="date_sold" required>
+            <input type="submit" value="Save">
+        </form>
+
+        <a href="/" class="btn">Back to Home</a>
+    </div>
+
+    <footer>
+        <p>Battery Sales System</p>
+    </footer>
+</body>
+</html>

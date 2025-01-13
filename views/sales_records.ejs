@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery Sales Records</title>
+    <link rel="stylesheet" href="/style.css">  <!-- Link to your stylesheet -->
+</head>
+<body>
+    <header>
+        <h1>Battery Sales Records</h1>
+    </header>
+
+    <div class="container">
+        <!-- Search Bar -->
+<input type="search" id="search-bar" placeholder="Search records..." />
+        
+        <table id="sales-table">
+            <thead>
+                <tr>
+                    <th>Car Brand</th>
+                    <th>Car Model</th>
+                    <th>Car Year</th>
+                    <th>Battery Brand</th>
+                    <th>Battery Model</th>
+                    <th>Battery Ampere</th>
+                    <th>Battery Serial</th>
+                    <th>Price Sold At</th>
+                    <th>Date Sold</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% batteries.forEach(function(record) { %>
+                    <tr>
+                        <td><%= record.car_brand %></td>
+                        <td><%= record.car_model %></td>
+                        <td><%= record.car_year %></td>
+                        <td><%= record.battery_brand %></td>
+                        <td><%= record.battery_model %></td>
+                        <td><%= record.battery_ampere %></td>
+                        <td><%= record.battery_serial %></td>
+                        <td><%= record.price_sold_at %></td>
+                        <td><%= record.date_sold %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <a href="/" class="btn">Back to Home</a>
+    </div>
+
+    <footer>
+        <p>Battery Sales System</p>
+    </footer>
+	<script>
+    // Get the search input field and table
+    const searchBar = document.getElementById('search-bar');
+    const salesTable = document.getElementById('sales-table');
+    const rows = salesTable.getElementsByTagName('tr'); // Get all rows in the table
+
+    // Add event listener to the search bar
+    searchBar.addEventListener('input', function() {
+        const query = searchBar.value.toLowerCase(); // Convert input to lowercase for case-insensitive search
+
+        // Loop through all rows (skipping the header row at index 0)
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            let rowData = ''; // Store all text content of the row
+
+            // Loop through each cell in the row and concatenate the text
+            for (let j = 0; j < row.cells.length; j++) {
+                rowData += row.cells[j].textContent.toLowerCase();
+            }
+
+            // Check if the search query is found in the row data
+            if (rowData.includes(query)) {
+                row.style.display = ''; // Show the row if it matches the search query
+            } else {
+                row.style.display = 'none'; // Hide the row if it doesn't match
+            }
+        }
+    });
+</script>
+</body>
+</html>
