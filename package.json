@@ -25,6 +25,6 @@
     "express": "^4.21.2"
   },
   "engines": {
-    "node": "16.x"  // Specifies Node.js version 16.x for Rende
+    "node": "16.x"
   }
 }
