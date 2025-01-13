@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 const Database = require('better-sqlite3');
 
 const app = express();
@@ -8,6 +9,14 @@ const PORT = process.env.PORT || 3001;
 
 // Correct database path (use Render's persistent directory for cloud deployments)
 const dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, 'battery_sales.db');
+
+// Ensure the directory exists
+const dbDirectory = path.dirname(dbPath);
+if (!fs.existsSync(dbDirectory)) {
+    fs.mkdirSync(dbDirectory, { recursive: true });
+}
+
+// Initialize the SQLite database
 const db = new Database(dbPath, { verbose: console.log });
 
 console.log('Connected to the SQLite database using better-sqlite3.');
