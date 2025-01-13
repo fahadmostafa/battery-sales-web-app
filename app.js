@@ -1,45 +1,34 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const Database = require('better-sqlite3');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-// Correct database path
-const dbPath = path.resolve(__dirname, 'battery_sales.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
+// Correct database path (use Render's persistent directory for cloud deployments)
+const dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, 'battery_sales.db');
+const db = new Database(dbPath, { verbose: console.log });
 
-        // Create the table if it does not exist
-        const createTableQuery = `
-            CREATE TABLE IF NOT EXISTS batteries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                car_brand TEXT,
-                car_model TEXT,
-                car_year INTEGER,
-                battery_brand TEXT,
-                battery_model TEXT,
-                battery_ampere TEXT,
-                battery_serial TEXT,
-                price_sold_at REAL,
-                date_sold TEXT
-            );
-        `;
-        
-        db.run(createTableQuery, (err) => {
-            if (err) {
-                console.error('Error creating table:', err.message);
-            } else {
-                console.log('Table created or already exists.');
-            }
-        });
-    }
-});
+console.log('Connected to the SQLite database using better-sqlite3.');
 
+const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS batteries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        car_brand TEXT,
+        car_model TEXT,
+        car_year INTEGER,
+        battery_brand TEXT,
+        battery_model TEXT,
+        battery_ampere TEXT,
+        battery_serial TEXT,
+        price_sold_at REAL,
+        date_sold TEXT
+    );
+`;
+
+const prepareTable = db.prepare(createTableQuery);
+prepareTable.run();
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -72,7 +61,7 @@ app.post('/battery-sales-entry', (req, res) => {
         return res.send('Invalid date.');
     }
 
-    const query = `
+    const insertQuery = `
         INSERT INTO batteries (
             car_brand, car_model, car_year, battery_brand,
             battery_model, battery_ampere, battery_serial,
@@ -80,23 +69,28 @@ app.post('/battery-sales-entry', (req, res) => {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.run(query, [car_brand, car_model, car_year, battery_brand, battery_model, battery_ampere, battery_serial, price_sold_at, date_sold], function (err) {
-        if (err) {
-            console.error('Error saving data:', err.message);
-            return res.send('Error saving data');
-        }
+    const insert = db.prepare(insertQuery);
+    const result = insert.run(car_brand, car_model, car_year, battery_brand, battery_model, battery_ampere, battery_serial, price_sold_at, date_sold);
+
+    if (result) {
         console.log('Data saved successfully!');
         res.redirect('/battery-sales-records');
-    });
+    } else {
+        console.error('Error saving data');
+        res.send('Error saving data');
+    }
 });
 
-
 app.get('/battery-sales-records', (req, res) => {
-    const query = `SELECT * FROM batteries`;
-    db.all(query, [], (err, rows) => {
-        if (err) return res.send('Error fetching records');
+    const selectQuery = `SELECT * FROM batteries`;
+    const rows = db.prepare(selectQuery).all();
+
+    if (rows) {
         res.render('sales_records', { batteries: rows });
-    });
+    } else {
+        console.error('Error fetching records');
+        res.send('Error fetching records');
+    }
 });
 
 // Start the server
