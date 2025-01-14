@@ -71,15 +71,15 @@ app.post('/battery-sales-entry', async (req, res) => {
         return res.send('Invalid price.');
     }
 
-    // Validate and format date_sold
-    const formattedDate = dayjs(date_sold, 'YYYY-MM-DD', true);
+    // Validate and format date_sold to 'YYYY-MM-DD'
+    const formattedDate = dayjs(date_sold, 'DD-MM-YYYY', true); // Parse as 'DD-MM-YYYY'
     if (!formattedDate.isValid()) {
         return res.send('Invalid date.');
     }
-    const formattedDateString = formattedDate.format('DD-MM-YYYY');
+    const formattedDateString = formattedDate.format('YYYY-MM-DD'); // Format to 'YYYY-MM-DD'
 
     // Capture current time as entry_time
-    const entryTime = dayjs().format('DD-MM-YYYY HH:mm:ss');
+    const entryTime = dayjs().format('YYYY-MM-DD HH:mm:ss'); // Ensure the entry time is formatted correctly
 
     const insertQuery = `
         INSERT INTO batteries (
@@ -99,8 +99,8 @@ app.post('/battery-sales-entry', async (req, res) => {
         console.log('Data saved successfully!');
         res.redirect('/battery-sales-records?status=success');
     } catch (error) {
-        console.error('Error saving data:', error);
-        res.send('Error saving data.');
+        console.error('Error saving data:', error); // Log the full error to check
+        res.send(`Error saving data: ${error.message}`);
     }
 });
 
