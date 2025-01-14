@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const path = require('path');
+const dayjs = require('dayjs');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,7 +31,10 @@ const createTableQuery = `
         battery_ampere TEXT,
         battery_serial TEXT,
         price_sold_at REAL,
-        date_sold DATE
+        currency TEXT,
+        payment_mode TEXT,
+        date_sold DATE,
+        entry_time TEXT
     );
 `;
 
@@ -59,7 +63,7 @@ app.post('/battery-sales-entry', async (req, res) => {
     const {
         car_brand, car_model, car_year, battery_brand,
         battery_model, battery_ampere, battery_serial,
-        price_sold_at, date_sold
+        price_sold_at, date_sold, currency, payment_mode
     } = req.body;
 
     // Validate price_sold_at
@@ -67,29 +71,35 @@ app.post('/battery-sales-entry', async (req, res) => {
         return res.send('Invalid price.');
     }
 
-    // Validate date_sold
-    if (!Date.parse(date_sold)) {
+    // Validate and format date_sold
+    const formattedDate = dayjs(date_sold, 'YYYY-MM-DD', true);
+    if (!formattedDate.isValid()) {
         return res.send('Invalid date.');
     }
+    const formattedDateString = formattedDate.format('DD-MM-YYYY');
+
+    // Capture current time as entry_time
+    const entryTime = dayjs().format('DD-MM-YYYY HH:mm:ss');
 
     const insertQuery = `
         INSERT INTO batteries (
             car_brand, car_model, car_year, battery_brand,
             battery_model, battery_ampere, battery_serial,
-            price_sold_at, date_sold
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            price_sold_at, currency, payment_mode, date_sold, entry_time
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     `;
 
     try {
         await pool.query(insertQuery, [
             car_brand, car_model, car_year, battery_brand,
             battery_model, battery_ampere, battery_serial,
-            price_sold_at, date_sold,
+            price_sold_at, currency, payment_mode,
+            formattedDateString, entryTime
         ]);
         console.log('Data saved successfully!');
-        res.redirect('/battery-sales-records');
-    } catch (err) {
-        console.error('Error saving data:', err);
+        res.redirect('/battery-sales-records?status=success');
+    } catch (error) {
+        console.error('Error saving data:', error);
         res.send('Error saving data.');
     }
 });
@@ -133,7 +143,7 @@ app.get('/download-records', async (req, res) => {
     const selectQuery = `SELECT * FROM batteries`;
 
     try {
-        const { rows } = await pool.query(selectQuery); // Fetch records from PostgreSQL
+        const { rows } = await pool.query(selectQuery);
 
         // Convert the records to a worksheet
         const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -156,6 +166,17 @@ app.get('/download-records', async (req, res) => {
         res.status(500).send('Error generating Excel file.');
     }
 });
+
+const alterTableQuery = `
+    ALTER TABLE batteries 
+    ADD COLUMN IF NOT EXISTS entry_time TEXT,
+    ADD COLUMN IF NOT EXISTS payment_mode TEXT,
+    ADD COLUMN IF NOT EXISTS currency TEXT;
+`;
+
+pool.query(alterTableQuery)
+    .then(() => console.log('Table altered successfully.'))
+    .catch((err) => console.error('Error altering table:', err));
 
 // Start the server
 app.listen(PORT, () => {

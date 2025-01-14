@@ -21,6 +21,18 @@
             <input type="text" name="battery_ampere" placeholder="Battery Ampere" required>
             <input type="text" name="battery_serial" placeholder="Battery Serial" required>
             <input type="number" name="price_sold_at" placeholder="Price Sold At" required>
+			<label for="currency">Currency:</label>
+<select id="currency" name="currency" required>
+    <option value="AED">Dirham</option>
+    <option value="USD">US Dollar</option>
+    <option value="OMR">Omani Riyal</option>
+    <!-- Add more currencies as needed -->
+</select>
+<label for="payment_mode">Payment Mode:</label>
+<select id="payment_mode" name="payment_mode" required>
+    <option value="cash">Cash</option>
+    <option value="card">Card</option>
+</select>
             <input type="date" name="date_sold" required>
             <input type="submit" value="Save">
         </form>
