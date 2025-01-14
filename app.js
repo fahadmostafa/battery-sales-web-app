@@ -93,9 +93,9 @@ app.post('/battery-sales-entry', async (req, res) => {
 
     const formattedDateString = formattedDate.format('YYYY-MM-DD'); // Format to 'YYYY-MM-DD'
 
-    // Generate entry_time in UAE timezone
-const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD HH:mm:ss');
-console.log('Entry Time (UAE):', entryTime); // Debugging: Ensure it's correct
+    // Generate entry_time in UAE timezone with 12-hour format
+const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD hh:mm:ss A');
+console.log('Entry Time (UAE, 12-hour format):', entryTime); // Debugging: Ensure it's correct
 
 const insertQuery = `
     INSERT INTO batteries (
