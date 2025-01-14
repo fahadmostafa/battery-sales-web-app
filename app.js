@@ -1,30 +1,26 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
+const { Pool } = require('pg');
 const path = require('path');
-const fs = require('fs');
-const Database = require('better-sqlite3');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const defaultDbPath = '/var/data/battery_sales.db'; // Render's persistent storage directory
-const dbPath = process.env.DATABASE_PATH || defaultDbPath;
+// PostgreSQL connection setup
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false, // Necessary for connecting to Render's managed database
+    },
+});
 
-// Ensure the directory exists
-const dbDirectory = path.dirname(dbPath);
-if (!fs.existsSync(dbDirectory)) {
-    fs.mkdirSync(dbDirectory, { recursive: true });
-}
+console.log('Connected to PostgreSQL database.');
 
-
-// Initialize the SQLite database
-const db = new Database(dbPath, { verbose: console.log });
-
-console.log('Connected to the SQLite database using better-sqlite3.');
-
+// Create the `batteries` table if it doesn't exist
 const createTableQuery = `
     CREATE TABLE IF NOT EXISTS batteries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         car_brand TEXT,
         car_model TEXT,
         car_year INTEGER,
@@ -33,12 +29,16 @@ const createTableQuery = `
         battery_ampere TEXT,
         battery_serial TEXT,
         price_sold_at REAL,
-        date_sold TEXT
+        date_sold DATE
     );
 `;
 
-const prepareTable = db.prepare(createTableQuery);
-prepareTable.run();
+pool.query(createTableQuery)
+    .then(() => console.log('Ensured `batteries` table exists.'))
+    .catch((err) => {
+        console.error('Error creating table:', err);
+        process.exit(1);
+    });
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -54,7 +54,7 @@ app.get('/battery-sales-entry', (req, res) => {
     res.render('sales_entry');
 });
 
-app.post('/battery-sales-entry', (req, res) => {
+app.post('/battery-sales-entry', async (req, res) => {
     const {
         car_brand, car_model, car_year, battery_brand,
         battery_model, battery_ampere, battery_serial,
@@ -76,30 +76,32 @@ app.post('/battery-sales-entry', (req, res) => {
             car_brand, car_model, car_year, battery_brand,
             battery_model, battery_ampere, battery_serial,
             price_sold_at, date_sold
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     `;
 
-    const insert = db.prepare(insertQuery);
-    const result = insert.run(car_brand, car_model, car_year, battery_brand, battery_model, battery_ampere, battery_serial, price_sold_at, date_sold);
-
-    if (result) {
+    try {
+        await pool.query(insertQuery, [
+            car_brand, car_model, car_year, battery_brand,
+            battery_model, battery_ampere, battery_serial,
+            price_sold_at, date_sold,
+        ]);
         console.log('Data saved successfully!');
         res.redirect('/battery-sales-records');
-    } else {
-        console.error('Error saving data');
-        res.send('Error saving data');
+    } catch (err) {
+        console.error('Error saving data:', err);
+        res.send('Error saving data.');
     }
 });
 
-app.get('/battery-sales-records', (req, res) => {
-    const selectQuery = `SELECT * FROM batteries`;
-    const rows = db.prepare(selectQuery).all();
+app.get('/battery-sales-records', async (req, res) => {
+    const selectQuery = 'SELECT * FROM batteries';
 
-    if (rows) {
+    try {
+        const { rows } = await pool.query(selectQuery);
         res.render('sales_records', { batteries: rows });
-    } else {
-        console.error('Error fetching records');
-        res.send('Error fetching records');
+    } catch (err) {
+        console.error('Error fetching records:', err);
+        res.send('Error fetching records.');
     }
 });
 
