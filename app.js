@@ -77,13 +77,12 @@ app.post('/battery-sales-entry', async (req, res) => {
         return res.send('Invalid price.');
     }
 
-    // Debugging: Log the raw date_sold value to check how it's being sent
     console.log('Raw date_sold:', date_sold);
 
     // Try to parse the date using both 'DD-MM-YYYY' and 'YYYY-MM-DD' formats
-    let formattedDate = dayjs(date_sold, 'DD-MM-YYYY', true); // Try DD-MM-YYYY
+    let formattedDate = dayjs(date_sold, 'DD-MM-YYYY', true); 
     if (!formattedDate.isValid()) {
-        formattedDate = dayjs(date_sold, 'YYYY-MM-DD', true); // If not valid, try YYYY-MM-DD
+        formattedDate = dayjs(date_sold, 'YYYY-MM-DD', true); 
     }
 
     console.log('Parsed date:', formattedDate.isValid(), formattedDate.format());
@@ -95,23 +94,23 @@ app.post('/battery-sales-entry', async (req, res) => {
     const formattedDateString = formattedDate.format('YYYY-MM-DD'); // Format to 'YYYY-MM-DD'
 
     // Generate entry_time in UAE timezone with 12-hour format
-const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD hh:mm:ss A');
-console.log('Entry Time (UAE, 12-hour format):', entryTime); // Debugging: Ensure it's correct
+    const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD hh:mm:ss A');
+    console.log('Entry Time (UAE, 12-hour format):', entryTime);
 
-const insertQuery = `
-    INSERT INTO batteries (
-        car_brand, car_model, car_year, battery_brand,
-        battery_model, battery_ampere, battery_serial,
-        price_sold_at, currency, payment_mode, date_sold, entry_time
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-`;
+    const insertQuery = `
+        INSERT INTO batteries (
+            car_brand, car_model, car_year, battery_brand,
+            battery_model, battery_ampere, battery_serial,
+            price_sold_at, currency, payment_mode, date_sold, entry_time
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `;
 
     try {
         await pool.query(insertQuery, [
-    car_brand, car_model, car_year, battery_brand,
-    battery_model, battery_ampere, battery_serial,
-    price_sold_at, currency, payment_mode, formattedDateString, entryTime
-]);
+            car_brand, car_model, car_year, battery_brand,
+            battery_model, battery_ampere, battery_serial,
+            price_sold_at, currency, payment_mode, formattedDateString, entryTime
+        ]);
         console.log('Data saved successfully!');
         res.redirect('/battery-sales-records?status=success');
     } catch (error) {
@@ -119,8 +118,6 @@ const insertQuery = `
         res.send(`Error saving data: ${error.message}`);
     }
 });
-
-
 
 app.post('/delete-record', async (req, res) => {
     const { id } = req.body;
@@ -150,13 +147,11 @@ app.get('/battery-sales-records', async (req, res) => {
     try {
         const { rows } = await pool.query(selectQuery);
 
-        // Format the date_sold to 'DD-MM-YYYY' before passing to the view
         rows.forEach(record => {
-            // Ensure that date_sold is being correctly parsed and formatted
             record.date_sold = dayjs(new Date(record.date_sold)).format('DD-MM-YYYY');
         });
 
-        const { status, message } = req.query; // Extract query parameters
+        const { status, message } = req.query;
         res.render('sales_records', { batteries: rows, status, message });
     } catch (error) {
         console.error('Error fetching records:', error);
@@ -170,11 +165,9 @@ app.get('/download-records', async (req, res) => {
     try {
         const { rows } = await pool.query(selectQuery);
 
-        // Create a new Excel workbook and worksheet using ExcelJS
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Battery Sales');
 
-        // Define columns
         worksheet.columns = [
             { header: 'Car Brand', key: 'car_brand', width: 20 },
             { header: 'Car Model', key: 'car_model', width: 20 },
@@ -190,7 +183,6 @@ app.get('/download-records', async (req, res) => {
             { header: 'Entry Time', key: 'entry_time', width: 20 }
         ];
 
-        // Add rows to the worksheet
         rows.forEach(record => {
             worksheet.addRow({
                 car_brand: record.car_brand,
@@ -203,16 +195,14 @@ app.get('/download-records', async (req, res) => {
                 price_sold_at: record.price_sold_at,
                 currency: record.currency,
                 payment_mode: record.payment_mode,
-                date_sold: dayjs(record.date_sold).format('DD-MM-YYYY'),  // Format the date correctly
+                date_sold: dayjs(record.date_sold).format('DD-MM-YYYY'),
                 entry_time: record.entry_time
             });
         });
 
-        // Set the response headers to trigger the download
         res.setHeader('Content-Disposition', 'attachment; filename="battery_sales_records.xlsx"');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-        // Write the Excel file and send it in the response
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
@@ -221,8 +211,6 @@ app.get('/download-records', async (req, res) => {
     }
 });
 
-
-// Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
