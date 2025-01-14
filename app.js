@@ -131,6 +131,12 @@ app.get('/battery-sales-records', async (req, res) => {
     const selectQuery = `SELECT * FROM batteries`;
     try {
         const { rows } = await pool.query(selectQuery);
+
+        // Format the date_sold to 'DD-MM-YYYY' before passing to the view
+        rows.forEach(record => {
+            record.date_sold = dayjs(record.date_sold).format('DD-MM-YYYY');
+        });
+
         const { status, message } = req.query; // Extract query parameters
         res.render('sales_records', { batteries: rows, status, message });
     } catch (error) {
@@ -178,7 +184,7 @@ app.get('/download-records', async (req, res) => {
                 price_sold_at: record.price_sold_at,
                 currency: record.currency,
                 payment_mode: record.payment_mode,
-                date_sold: record.date_sold,
+                date_sold: dayjs(record.date_sold).format('DD-MM-YYYY'),  // Format the date correctly
                 entry_time: record.entry_time
             });
         });
@@ -195,6 +201,7 @@ app.get('/download-records', async (req, res) => {
         res.status(500).send('Error generating Excel file.');
     }
 });
+
 
 // Start the server
 app.listen(PORT, () => {
