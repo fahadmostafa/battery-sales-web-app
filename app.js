@@ -134,7 +134,8 @@ app.get('/battery-sales-records', async (req, res) => {
 
         // Format the date_sold to 'DD-MM-YYYY' before passing to the view
         rows.forEach(record => {
-            record.date_sold = dayjs(record.date_sold).format('DD-MM-YYYY');
+            // Ensure that date_sold is being correctly parsed and formatted
+            record.date_sold = dayjs(new Date(record.date_sold)).format('DD-MM-YYYY');
         });
 
         const { status, message } = req.query; // Extract query parameters
