@@ -5,6 +5,7 @@ body {
     padding: 0;
     background-color: #f1f1f1;
     color: #333;
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 h1, h2, h3 {
@@ -43,6 +44,7 @@ footer {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Ensure container respects padding and width */
 }
 
 /* Buttons */
@@ -89,10 +91,13 @@ form {
     border-radius: 10px;
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
+    width: 100%; /* Ensure form takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 form input, form select, form textarea {
-    width: 100%;
+    width: 100%; /* Ensure inputs take full width */
+    box-sizing: border-box; /* Prevent overflow */
     padding: 12px;
     margin: 8px 0;
     border: 1px solid #ddd;
@@ -120,6 +125,7 @@ form input:focus, form select:focus, form textarea:focus {
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+    width: 100%; /* Ensure no overflow */
 }
 
 .card {
@@ -127,7 +133,8 @@ form input:focus, form select:focus, form textarea:focus {
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 300px;
+    width: 100%; /* Ensure card width is flexible */
+    max-width: 300px; /* Max width of card */
     text-align: left;
     margin: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -167,11 +174,13 @@ form input:focus, form select:focus, form textarea:focus {
 /* Search Bar */
 input[type="search"] {
     padding: 10px;
-    width: 250px;
+    width: 100%;  /* Ensure the input takes full width */
+    max-width: 250px; /* Limit width for larger screens */
     border-radius: 5px;
     border: 1px solid #ddd;
     font-size: 14px;
     margin-top: 10px;
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 /* Responsiveness for all screen sizes */
@@ -203,7 +212,7 @@ input[type="search"] {
     }
 
     .card {
-        width: 100%;
+        width: 100%; /* Full width on small screens */
         margin-bottom: 10px;
     }
 }
@@ -241,7 +250,7 @@ input[type="search"] {
     }
 
     .card {
-        width: 100%;
+        width: 100%; /* Full width on smaller screens */
         margin-bottom: 10px;
     }
 }
@@ -267,7 +276,7 @@ input[type="search"] {
     }
 
     .card {
-        width: 300px;
+        width: 300px; /* Set a fixed width for larger screens */
     }
 }
 
@@ -275,7 +284,7 @@ input[type="search"] {
 @media (min-width: 1200px) {
     .container {
         max-width: 1200px;
-        padding: 30px; /* Consistent padding for large screens */
+        padding: 30px;
     }
 
     table th, table td {
@@ -293,6 +302,6 @@ input[type="search"] {
     }
 
     .card {
-        width: 300px;
+        width: 300px; /* Set a fixed width for larger screens */
     }
 }
