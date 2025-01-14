@@ -74,12 +74,16 @@ app.post('/battery-sales-entry', async (req, res) => {
     // Debugging: Log the raw date_sold value to check how it's being sent
     console.log('Raw date_sold:', date_sold);
 
-    // Validate and format date_sold to 'YYYY-MM-DD'
-    const formattedDate = dayjs(date_sold, 'DD-MM-YYYY', true); // Parse as 'DD-MM-YYYY'
+    // Try to parse the date using both 'DD-MM-YYYY' and 'YYYY-MM-DD' formats
+    let formattedDate = dayjs(date_sold, 'DD-MM-YYYY', true); // Try DD-MM-YYYY
+    if (!formattedDate.isValid()) {
+        formattedDate = dayjs(date_sold, 'YYYY-MM-DD', true); // If not valid, try YYYY-MM-DD
+    }
+
     console.log('Parsed date:', formattedDate.isValid(), formattedDate.format());
 
     if (!formattedDate.isValid()) {
-        return res.send('Invalid date. Please make sure the format is DD-MM-YYYY.');
+        return res.send('Invalid date. Please make sure the format is DD-MM-YYYY or YYYY-MM-DD.');
     }
 
     const formattedDateString = formattedDate.format('YYYY-MM-DD'); // Format to 'YYYY-MM-DD'
@@ -109,6 +113,7 @@ app.post('/battery-sales-entry', async (req, res) => {
         res.send(`Error saving data: ${error.message}`);
     }
 });
+
 
 
 app.post('/delete-record', async (req, res) => {
