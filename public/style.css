@@ -133,8 +133,8 @@ table th {
 }
 
 table td {
-    background-color: #fafafa;
-	padding: 10px;
+    background-color: transparent; /* Remove any white background */
+	padding: 5px 10px; /* Minimal padding to avoid excessive row height */
     text-align: center; /* Align buttons centrally */
     vertical-align: middle; /* Vertically center within the cell */
 }
@@ -144,7 +144,7 @@ table tr:nth-child(even) td {
 }
 
 table tr:hover td {
-    background-color: #f1f1f1;
+    background-color: #f9f9f9; /* Light gray background on hover */
 }
 
 /* Search Bar */
@@ -208,23 +208,24 @@ input[type="search"] {
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px; /* Reduce padding for a smaller size */
-    font-size: 14px; /* Smaller font size */
-    border-radius: 4px; /* Slightly rounded corners */
+    background-color: #f8d7da; /* Mild red background */
+    color: #721c24; /* Dark red text */
+    border: 1px solid #f5c6cb; /* Border matching the mild red tone */
+    padding: 3px 8px; /* Smaller padding to reduce size */
+    font-size: 12px; /* Smaller font size */
+    border-radius: 3px; /* Subtle rounded corners */
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effect */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+	line-height: normal; /* Ensure text height does not stretch the button */
 }
 
 .btn-danger:hover {
-    background-color: #c82333; /* Darker red on hover */
-    transform: scale(1.05); /* Slight hover animation */
+    background-color: #f5c6cb; /* Slightly darker on hover */
+    transform: scale(1.05); /* Subtle hover animation */
 }
 
 .btn-danger:active {
-    transform: scale(1); /* Prevent button from staying scaled */
+    transform: scale(1); /* Prevent the button from staying scaled */
 }
 
 .btn {
