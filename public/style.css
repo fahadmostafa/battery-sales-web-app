@@ -46,7 +46,7 @@ footer {
 }
 
 /* Buttons */
-.btn {
+a.btn {
     display: inline-block;
     padding: 10px 20px;
     margin: 5px 0;
@@ -58,7 +58,7 @@ footer {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.btn:hover {
+a.btn:hover {
     background-color: #0056b3;
 }
 
@@ -120,6 +120,7 @@ table {
     margin-top: 10px;
     border-collapse: collapse;
     background-color: white;
+    overflow-x: auto;
 }
 
 table th, table td {
@@ -153,11 +154,34 @@ input[type="search"] {
     margin-top: 10px;
 }
 
-/* Responsiveness */
+/* Responsiveness for all screen sizes */
+
+/* Small screens (mobile) */
+@media (max-width: 480px) {
+    table th, table td {
+        font-size: 10px;
+        padding: 6px;
+    }
+
+    input[type="search"] {
+        padding: 8px;
+        width: 100%;
+    }
+
+    a.btn {
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+}
+
+/* Medium screens (tablets) */
 @media (max-width: 768px) {
     table {
         display: block;
-        width: 100%;
         overflow-x: auto;
         white-space: nowrap;
     }
@@ -182,25 +206,37 @@ input[type="search"] {
     }
 }
 
-@media (max-width: 480px) {
+/* Large screens (laptop/desktops) */
+@media (min-width: 1024px) {
     table th, table td {
-        font-size: 10px;
-        padding: 6px;
+        font-size: 14px;
+        padding: 10px;
     }
 
-    input[type="search"] {
-        padding: 8px;
+    .container {
+        padding: 20px;
     }
 
     a.btn {
-        font-size: 10px;
-        padding: 6px 12px;
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+}
+
+/* Extra Large screens (large monitors) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1200px;
+        padding: 30px;
     }
 
-    table th:nth-child(9),
-    table td:nth-child(9),
-    table th:nth-child(12),
-    table td:nth-child(12) {
-        display: none;
+    table th, table td {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    a.btn {
+        font-size: 16px;
+        padding: 12px 24px;
     }
 }
