@@ -1,4 +1,5 @@
 require('dotenv').config();
+const XLSX = require('xlsx');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
@@ -125,6 +126,34 @@ app.get('/battery-sales-records', async (req, res) => {
     } catch (error) {
         console.error('Error fetching records:', error);
         res.send('Error fetching records.');
+    }
+});
+
+app.get('/download-records', async (req, res) => {
+    const selectQuery = `SELECT * FROM batteries`;
+
+    try {
+        const { rows } = await pool.query(selectQuery); // Fetch records from PostgreSQL
+
+        // Convert the records to a worksheet
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+
+        // Create a workbook and append the worksheet
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Battery Sales');
+
+        // Write the workbook to a buffer
+        const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+        // Set response headers for file download
+        res.setHeader('Content-Disposition', 'attachment; filename="battery_sales_records.xlsx"');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        
+        // Send the Excel file as the response
+        res.send(excelBuffer);
+    } catch (error) {
+        console.error('Error generating Excel file:', error);
+        res.status(500).send('Error generating Excel file.');
     }
 });
 

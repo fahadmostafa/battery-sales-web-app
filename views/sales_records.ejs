@@ -14,7 +14,13 @@
     <div class="container">
         <!-- Search Bar -->
 <input type="search" id="search-bar" placeholder="Search records..." />
-        
+        <div>
+    <% if (status && message) { %>
+        <div class="alert <%= status === 'success' ? 'alert-success' : 'alert-error' %>">
+            <%= message %>
+        </div>
+    <% } %>
+        </div>
         <table id="sales-table">
             <thead>
                 <tr>
@@ -51,10 +57,26 @@
     <% }); %>
 </tbody>
         </table>
-
+<div>
+    <a href="/download-records" class="btn">Download Records as Excel</a>
+</div>
         <a href="/" class="btn">Back to Home</a>
     </div>
-
+<style>
+    .alert {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+</style>
     <footer>
         <p>Battery Sales System</p>
     </footer>
