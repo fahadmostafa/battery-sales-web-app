@@ -5,6 +5,11 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const path = require('path');
 const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -88,24 +93,24 @@ app.post('/battery-sales-entry', async (req, res) => {
 
     const formattedDateString = formattedDate.format('YYYY-MM-DD'); // Format to 'YYYY-MM-DD'
 
-    // Capture current time as entry_time
-    const entryTime = dayjs().format('YYYY-MM-DD HH:mm:ss'); // Ensure the entry time is formatted correctly
+    // Generate entry_time in UAE timezone
+const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD HH:mm:ss');
+console.log('Entry Time (UAE):', entryTime); // Debugging: Ensure it's correct
 
-    const insertQuery = `
-        INSERT INTO batteries (
-            car_brand, car_model, car_year, battery_brand,
-            battery_model, battery_ampere, battery_serial,
-            price_sold_at, currency, payment_mode, date_sold, entry_time
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-    `;
+const insertQuery = `
+    INSERT INTO batteries (
+        car_brand, car_model, car_year, battery_brand,
+        battery_model, battery_ampere, battery_serial,
+        price_sold_at, currency, payment_mode, date_sold, entry_time
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+`;
 
     try {
         await pool.query(insertQuery, [
-            car_brand, car_model, car_year, battery_brand,
-            battery_model, battery_ampere, battery_serial,
-            price_sold_at, currency, payment_mode,
-            formattedDateString, entryTime
-        ]);
+    car_brand, car_model, car_year, battery_brand,
+    battery_model, battery_ampere, battery_serial,
+    price_sold_at, currency, payment_mode, formattedDateString, entryTime
+]);
         console.log('Data saved successfully!');
         res.redirect('/battery-sales-records?status=success');
     } catch (error) {
