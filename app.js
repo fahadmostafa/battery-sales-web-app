@@ -71,11 +71,17 @@ app.post('/battery-sales-entry', async (req, res) => {
         return res.send('Invalid price.');
     }
 
+    // Debugging: Log the raw date_sold value to check how it's being sent
+    console.log('Raw date_sold:', date_sold);
+
     // Validate and format date_sold to 'YYYY-MM-DD'
     const formattedDate = dayjs(date_sold, 'DD-MM-YYYY', true); // Parse as 'DD-MM-YYYY'
+    console.log('Parsed date:', formattedDate.isValid(), formattedDate.format());
+
     if (!formattedDate.isValid()) {
-        return res.send('Invalid date.');
+        return res.send('Invalid date. Please make sure the format is DD-MM-YYYY.');
     }
+
     const formattedDateString = formattedDate.format('YYYY-MM-DD'); // Format to 'YYYY-MM-DD'
 
     // Capture current time as entry_time
@@ -99,10 +105,11 @@ app.post('/battery-sales-entry', async (req, res) => {
         console.log('Data saved successfully!');
         res.redirect('/battery-sales-records?status=success');
     } catch (error) {
-        console.error('Error saving data:', error); // Log the full error to check
+        console.error('Error saving data:', error);
         res.send(`Error saving data: ${error.message}`);
     }
 });
+
 
 app.post('/delete-record', async (req, res) => {
     const { id } = req.body;
