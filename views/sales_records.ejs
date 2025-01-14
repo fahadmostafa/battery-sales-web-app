@@ -23,18 +23,21 @@
         </div>
         <table id="sales-table">
             <thead>
-                <tr>
-                    <th>Car Brand</th>
-                    <th>Car Model</th>
-                    <th>Car Year</th>
-                    <th>Battery Brand</th>
-                    <th>Battery Model</th>
-                    <th>Battery Ampere</th>
-                    <th>Battery Serial</th>
-                    <th>Price Sold At</th>
-                    <th>Date Sold</th>
-                </tr>
-            </thead>
+    <tr>
+        <th>Car Brand</th>
+        <th>Car Model</th>
+        <th>Car Year</th>
+        <th>Battery Brand</th>
+        <th>Battery Model</th>
+        <th>Battery Ampere</th>
+        <th>Battery Serial</th>
+        <th>Price Sold At</th>
+        <th>Currency</th>
+        <th>Payment Mode</th>
+        <th>Date Sold</th>
+        <th>Entry Time</th>
+    </tr>
+</thead>
 <tbody>
     <% batteries.forEach(function(record) { %>
         <tr>
@@ -46,8 +49,11 @@
             <td><%= record.battery_ampere %></td>
             <td><%= record.battery_serial %></td>
             <td><%= record.price_sold_at %></td>
+            <td><%= record.currency %></td>
+            <td><%= record.payment_mode %></td>
             <td><%= record.date_sold %></td>
-            <td>
+            <td><%= record.entry_time %></td>
+			<td>
                 <form action="/delete-record" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');">
                     <input type="hidden" name="id" value="<%= record.id %>">
                     <button type="submit" class="btn btn-danger">Delete</button>
@@ -56,6 +62,7 @@
         </tr>
     <% }); %>
 </tbody>
+
         </table>
 <div>
     <a href="/download-records" class="btn">Download Records as Excel</a>

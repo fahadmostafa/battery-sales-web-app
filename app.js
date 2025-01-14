@@ -1,5 +1,5 @@
 require('dotenv').config();
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
@@ -145,38 +145,56 @@ app.get('/download-records', async (req, res) => {
     try {
         const { rows } = await pool.query(selectQuery);
 
-        // Convert the records to a worksheet
-        const worksheet = XLSX.utils.json_to_sheet(rows);
+        // Create a new Excel workbook and worksheet using ExcelJS
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Battery Sales');
 
-        // Create a workbook and append the worksheet
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Battery Sales');
+        // Define columns
+        worksheet.columns = [
+            { header: 'Car Brand', key: 'car_brand', width: 20 },
+            { header: 'Car Model', key: 'car_model', width: 20 },
+            { header: 'Car Year', key: 'car_year', width: 10 },
+            { header: 'Battery Brand', key: 'battery_brand', width: 20 },
+            { header: 'Battery Model', key: 'battery_model', width: 20 },
+            { header: 'Battery Ampere', key: 'battery_ampere', width: 15 },
+            { header: 'Battery Serial', key: 'battery_serial', width: 25 },
+            { header: 'Price Sold At', key: 'price_sold_at', width: 15 },
+            { header: 'Currency', key: 'currency', width: 10 },
+            { header: 'Payment Mode', key: 'payment_mode', width: 15 },
+            { header: 'Date Sold', key: 'date_sold', width: 15 },
+            { header: 'Entry Time', key: 'entry_time', width: 20 }
+        ];
 
-        // Write the workbook to a buffer
-        const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+        // Add rows to the worksheet
+        rows.forEach(record => {
+            worksheet.addRow({
+                car_brand: record.car_brand,
+                car_model: record.car_model,
+                car_year: record.car_year,
+                battery_brand: record.battery_brand,
+                battery_model: record.battery_model,
+                battery_ampere: record.battery_ampere,
+                battery_serial: record.battery_serial,
+                price_sold_at: record.price_sold_at,
+                currency: record.currency,
+                payment_mode: record.payment_mode,
+                date_sold: record.date_sold,
+                entry_time: record.entry_time
+            });
+        });
 
-        // Set response headers for file download
+        // Set the response headers to trigger the download
         res.setHeader('Content-Disposition', 'attachment; filename="battery_sales_records.xlsx"');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        
-        // Send the Excel file as the response
-        res.send(excelBuffer);
+
+        // Write the Excel file and send it in the response
+        await workbook.xlsx.write(res);
+        res.end();
     } catch (error) {
         console.error('Error generating Excel file:', error);
         res.status(500).send('Error generating Excel file.');
     }
 });
-
-const alterTableQuery = `
-    ALTER TABLE batteries 
-    ADD COLUMN IF NOT EXISTS entry_time TEXT,
-    ADD COLUMN IF NOT EXISTS payment_mode TEXT,
-    ADD COLUMN IF NOT EXISTS currency TEXT;
-`;
-
-pool.query(alterTableQuery)
-    .then(() => console.log('Table altered successfully.'))
-    .catch((err) => console.error('Error altering table:', err));
 
 // Start the server
 app.listen(PORT, () => {
