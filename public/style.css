@@ -134,6 +134,9 @@ table th {
 
 table td {
     background-color: #fafafa;
+	padding: 10px;
+    text-align: center; /* Align buttons centrally */
+    vertical-align: middle; /* Vertically center within the cell */
 }
 
 table tr:nth-child(even) td {
@@ -195,18 +198,33 @@ input[type="search"] {
         font-size: 14px;
         padding: 10px 20px;
     }
+	
+	table th:nth-child(9), /* Currency */
+    table td:nth-child(9), /* Currency */
+    table th:nth-child(12), /* Entry Time */
+    table td:nth-child(12) { /* Entry Time */
+        display: none;
+    }
 }
 
 .btn-danger {
     background-color: #dc3545;
-    color: #fff;
+    color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 5px 10px; /* Reduce padding for a smaller size */
+    font-size: 14px; /* Smaller font size */
+    border-radius: 4px; /* Slightly rounded corners */
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effect */
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
+    background-color: #c82333; /* Darker red on hover */
+    transform: scale(1.05); /* Slight hover animation */
+}
+
+.btn-danger:active {
+    transform: scale(1); /* Prevent button from staying scaled */
 }
 
 .btn {
@@ -222,4 +240,9 @@ input[type="search"] {
 
 .btn:hover {
     background-color: #0056b3;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 12px;
 }
