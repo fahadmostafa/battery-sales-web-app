@@ -51,6 +51,7 @@ pool.query(createTableQuery)
     });
 
 // Middleware
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
@@ -125,7 +126,7 @@ app.post('/delete-record', async (req, res) => {
     const { id } = req.body;
 
     if (!id) {
-        return res.redirect('/battery-sales-records?status=error&message=Invalid+Record+ID');
+        return res.status(400).json({ status: 'error', message: 'Invalid Record ID' });
     }
 
     try {
@@ -134,13 +135,13 @@ app.post('/delete-record', async (req, res) => {
 
         if (result.rowCount > 0) {
             console.log(`Record with ID ${id} deleted.`);
-            res.redirect('/battery-sales-records?status=success&message=Record+deleted+successfully');
+            return res.status(200).json({ status: 'success', message: 'Record deleted successfully' });
         } else {
-            res.redirect('/battery-sales-records?status=error&message=Record+not+found');
+            return res.status(404).json({ status: 'error', message: 'Record not found' });
         }
     } catch (error) {
         console.error('Error deleting record:', error);
-        res.redirect('/battery-sales-records?status=error&message=Server+error');
+        return res.status(500).json({ status: 'error', message: 'Server error occurred while deleting the record' });
     }
 });
 
