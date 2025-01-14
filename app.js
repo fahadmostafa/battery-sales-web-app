@@ -93,14 +93,37 @@ app.post('/battery-sales-entry', async (req, res) => {
     }
 });
 
-app.get('/battery-sales-records', async (req, res) => {
-    const selectQuery = 'SELECT * FROM batteries';
+app.post('/delete-record', async (req, res) => {
+    const { id } = req.body;
+
+    if (!id) {
+        return res.redirect('/battery-sales-records?status=error&message=Invalid+Record+ID');
+    }
 
     try {
+        const deleteQuery = `DELETE FROM batteries WHERE id = $1`;
+        const result = await pool.query(deleteQuery, [id]);
+
+        if (result.rowCount > 0) {
+            console.log(`Record with ID ${id} deleted.`);
+            res.redirect('/battery-sales-records?status=success&message=Record+deleted+successfully');
+        } else {
+            res.redirect('/battery-sales-records?status=error&message=Record+not+found');
+        }
+    } catch (error) {
+        console.error('Error deleting record:', error);
+        res.redirect('/battery-sales-records?status=error&message=Server+error');
+    }
+});
+
+app.get('/battery-sales-records', async (req, res) => {
+    const selectQuery = `SELECT * FROM batteries`;
+    try {
         const { rows } = await pool.query(selectQuery);
-        res.render('sales_records', { batteries: rows });
-    } catch (err) {
-        console.error('Error fetching records:', err);
+        const { status, message } = req.query; // Extract query parameters
+        res.render('sales_records', { batteries: rows, status, message });
+    } catch (error) {
+        console.error('Error fetching records:', error);
         res.send('Error fetching records.');
     }
 });

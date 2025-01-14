@@ -196,3 +196,15 @@ input[type="search"] {
         padding: 10px 20px;
     }
 }
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
