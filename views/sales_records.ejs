@@ -156,9 +156,13 @@
             filter.addEventListener('change', filterRecords);
         });
         clearSearchButton.addEventListener('click', () => {
-            searchBar.value = '';
-            filterRecords();
-        });
+    searchBar.value = ''; // Clear the search input
+    filterRecords(); // Reapply the filters (this will reset highlighted text)
+    // Reset the highlighted text in all cards
+    cards.forEach((card, index) => {
+        card.innerHTML = originalCardHTML[index]; // Reset to original HTML
+    });
+});
 
         // Back to top button functionality
         backToTopButton.addEventListener('click', () => {
