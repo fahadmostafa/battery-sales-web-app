@@ -22,6 +22,11 @@ const pool = new Pool({
     },
 });
 
+pool.connect()
+    .then(() => console.log('Connected to the database successfully'))
+    .catch(err => console.error('Connection error:', err));
+
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
 console.log('Connected to PostgreSQL database.');
 
 // Create the `batteries` table if it doesn't exist
