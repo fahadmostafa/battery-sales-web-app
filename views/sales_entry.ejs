@@ -8,10 +8,11 @@
 </head>
 <body>
     <header>
-        <h1>Battery Sales Entry</h1>
+        <a href="/"><h1>Battery Sales Entry</h1></a>
     </header>
 
     <div class="container">
+	<a href="/" class="btn">Back to Home</a>
         <form action="/battery-sales-entry" method="POST">
             <input type="text" name="car_brand" placeholder="Car Brand" required>
             <input type="text" name="car_model" placeholder="Car Model" required>
@@ -37,8 +38,6 @@
 <input type="date" id="date_sold" name="date_sold" required>
             <input type="submit" value="Save">
         </form>
-
-        <a href="/" class="btn">Back to Home</a>
     </div>
 
     <footer>

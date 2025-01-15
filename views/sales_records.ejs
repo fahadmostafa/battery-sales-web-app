@@ -8,10 +8,15 @@
 </head>
 <body>
     <header>
-        <h1>Battery Sales Records</h1>
+        <a href="/"><h1>Battery Sales Records</h1></a>
     </header>
 
     <div class="container">
+	<a href="/" class="btn">Back to Home</a>
+	<!-- Excel Download Link -->
+        <div>
+            <a href="/download-records" class="btn">Download Records as Excel</a>
+        </div>
         <!-- Search Bar -->
         <input type="search" id="search-bar" placeholder="Search records..." />
 
@@ -40,12 +45,6 @@
             </div>
             <% }); %>
         </div>
-
-        <!-- Excel Download Link -->
-        <div>
-            <a href="/download-records" class="btn">Download Records as Excel</a>
-        </div>
-        <a href="/" class="btn">Back to Home</a>
     </div>
 
     <footer>
