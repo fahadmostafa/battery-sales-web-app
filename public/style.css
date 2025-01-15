@@ -216,6 +216,11 @@ input[type="search"] {
         width: 100%; /* Full width on small screens */
         margin-bottom: 10px;
     }
+	
+	.back-to-top {
+        padding: 10px;
+        font-size: 14px;
+    }
 }
 
 /* Medium screens (tablets) */
@@ -253,6 +258,11 @@ input[type="search"] {
     .card {
         width: 100%; /* Full width on smaller screens */
         margin-bottom: 10px;
+    }
+	
+	.back-to-top {
+        padding: 12px;
+        font-size: 16px;
     }
 }
 
@@ -305,4 +315,36 @@ input[type="search"] {
     .card {
         width: calc(33.33% - 20px); /* 3 cards per row with space between them */
     }
+}
+
+/* Back to Top Button Styles */
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 15px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+}
+
+.back-to-top:hover {
+    background-color: #0056b3;
+}
+
+.back-to-top:focus {
+    outline: none;
+}
+
+/* Show button when scrolling down */
+.back-to-top.visible {
+    opacity: 1;
+    transform: translateY(0);
 }

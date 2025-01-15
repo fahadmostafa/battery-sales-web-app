@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Battery Sales Records</title>
-    <link rel="stylesheet" href="/style.css"> <!-- Link to your stylesheet -->
+    <link rel="stylesheet" href="/style.css">
     <style>
         .highlight {
             background-color: yellow;
+        }
+
+        /* Prevent mobile zooming */
+        input[type="search"] {
+            font-size: 16px; /* Larger font to prevent zoom */
         }
     </style>
 </head>
@@ -87,13 +92,21 @@
         <p>Battery Sales System</p>
     </footer>
 
+    <!-- Floating "Back to Top" Button -->
+    <button id="back-to-top" class="back-to-top">Back to Top</button>
+
     <script>
         const searchBar = document.getElementById('search-bar');
         const clearSearchButton = document.getElementById('clear-search');
-        const brandFilter = document.getElementById('brand-filter');
-        const modelFilter = document.getElementById('model-filter');
-        const yearFilter = document.getElementById('year-filter');
+        const filters = document.querySelectorAll('#brand-filter, #model-filter, #year-filter');
         const cards = document.querySelectorAll('.card');
+        const backToTopButton = document.getElementById('back-to-top');
+        let originalCardHTML = []; // Store original HTML content of cards
+
+        // Store original HTML of cards
+        cards.forEach((card, index) => {
+            originalCardHTML[index] = card.innerHTML;
+        });
 
         // Debounce function to optimize search input handling
         let debounceTimer;
@@ -103,61 +116,79 @@
         }
 
         function highlightMatchingText(text, query) {
-            const regex = new RegExp(query, 'gi');  // Global, case-insensitive search
+            const regex = new RegExp(query, 'gi');
             return text.replace(regex, match => `<span class="highlight">${match}</span>`);
         }
 
         function filterRecords() {
             const query = searchBar.value.toLowerCase();
-            const selectedBrand = brandFilter.value.toLowerCase();
-            const selectedModel = modelFilter.value.toLowerCase();
-            const selectedYear = yearFilter.value.toLowerCase();
+            const selectedBrand = document.getElementById('brand-filter').value.toLowerCase();
+            const selectedModel = document.getElementById('model-filter').value.toLowerCase();
+            const selectedYear = document.getElementById('year-filter').value.toLowerCase();
 
-            cards.forEach(card => {
+            cards.forEach((card, index) => {
                 const cardText = card.textContent.toLowerCase();
                 const cardBrand = card.getAttribute('data-brand').toLowerCase();
                 const cardModel = card.getAttribute('data-model').toLowerCase();
                 const cardYear = card.getAttribute('data-year').toLowerCase();
 
-                // Check if the card matches the search query and selected filters
                 const matchesSearch = cardText.includes(query);
                 const matchesBrand = selectedBrand ? cardBrand.includes(selectedBrand) : true;
                 const matchesModel = selectedModel ? cardModel.includes(selectedModel) : true;
                 const matchesYear = selectedYear ? cardYear.includes(selectedYear) : true;
 
                 if (matchesSearch && matchesBrand && matchesModel && matchesYear) {
-                    card.style.display = ''; // Show the card
-                    // Highlight matching text in the card
+                    card.style.display = '';
                     if (query) {
-                        card.innerHTML = card.innerHTML.replace(/<span class="highlight">.*?<\/span>/g, function(match) {
-                            return match; // Remove previous highlights
-                        });
+                        card.innerHTML = originalCardHTML[index]; // Reset to original HTML
                         card.innerHTML = highlightMatchingText(card.innerHTML, query);
                     }
                 } else {
-                    card.style.display = 'none'; // Hide the card
+                    card.style.display = 'none';
                 }
             });
         }
 
-        // Event listeners
+        // Event listeners for filters and search
         searchBar.addEventListener('input', debounceSearch);
-        brandFilter.addEventListener('change', filterRecords);
-        modelFilter.addEventListener('change', filterRecords);
-        yearFilter.addEventListener('change', filterRecords);
+        filters.forEach(filter => {
+            filter.addEventListener('change', filterRecords);
+        });
         clearSearchButton.addEventListener('click', () => {
             searchBar.value = '';
-            filterRecords();  // Reset the filter
+            filterRecords();
         });
 
+        // Back to top button functionality
+backToTopButton.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+// Show back-to-top button based on scroll position
+let lastScrollY = 0;
+const handleScroll = () => {
+    if (window.scrollY > 300 && window.scrollY > lastScrollY) {
+        backToTopButton.style.opacity = '1';  // Makes button visible
+        backToTopButton.style.transform = 'translateY(0)';  // Moves button into view
+    } else {
+        backToTopButton.style.opacity = '0';  // Hides button
+        backToTopButton.style.transform = 'translateY(100px)';  // Hides button by translating out of view
+    }
+    lastScrollY = window.scrollY;
+};
+window.addEventListener('scroll', handleScroll);
+
+
+        // Deleting records
         document.addEventListener("DOMContentLoaded", function () {
             const deleteButtons = document.querySelectorAll(".delete-btn");
-
             deleteButtons.forEach((button) => {
                 button.addEventListener("click", function () {
                     const recordId = this.getAttribute("data-id");
                     const confirmDelete = confirm("Are you sure you want to delete this record?");
-
                     if (confirmDelete) {
                         fetch("/delete-record", {
                             method: "POST",
@@ -170,7 +201,7 @@
                         .then((data) => {
                             if (data.status === 'success') {
                                 alert(data.message);
-                                location.reload(); // Reload to update the cards
+                                location.reload();
                             } else {
                                 alert(data.message);
                             }
