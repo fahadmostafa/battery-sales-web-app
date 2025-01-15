@@ -191,6 +191,8 @@ input[type="search"] {
     background-color: #f5f5f5;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ensures full width */
+    box-sizing: border-box; /* Prevent overflow */
 }
 
 .filter-section label {
@@ -288,7 +290,7 @@ input[type="search"] {
 
     .filter-section {
         width: 100%;  /* Full width for mobile */
-        padding: 15px;
+        padding: 10px;
         display: block;  /* Stack elements vertically */
     }
 
@@ -301,6 +303,7 @@ input[type="search"] {
     .filter-section select {
         width: 100%;  /* Full width for select elements */
         padding: 12px;
+		margin: 5px 0; /* Adjust margin for better spacing */
         margin-bottom: 15px;  /* Add space between the select elements */
         border-radius: 5px;
         font-size: 14px;
