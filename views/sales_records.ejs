@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Battery Sales Records</title>
     <link rel="stylesheet" href="/style.css"> <!-- Link to your stylesheet -->
+    <style>
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -12,13 +17,44 @@
     </header>
 
     <div class="container">
-	<a href="/" class="btn">Back to Home</a>
-	<!-- Excel Download Link -->
+        <a href="/" class="btn">Back to Home</a>
         <div>
             <a href="/download-records" class="btn">Download Records as Excel</a>
         </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <label for="brand-filter">Car Brand:</label>
+            <select id="brand-filter">
+                <option value="">All</option>
+                <% const brands = [...new Set(batteries.map(record => record.car_brand))]; %>
+                <% brands.forEach(function(brand) { %>
+                    <option value="<%= brand %>"><%= brand %></option>
+                <% }); %>
+            </select>
+
+            <label for="model-filter">Car Model:</label>
+            <select id="model-filter">
+                <option value="">All</option>
+                <% const models = [...new Set(batteries.map(record => record.car_model))]; %>
+                <% models.forEach(function(model) { %>
+                    <option value="<%= model %>"><%= model %></option>
+                <% }); %>
+            </select>
+
+            <label for="year-filter">Car Year:</label>
+            <select id="year-filter">
+                <option value="">All</option>
+                <% const years = [...new Set(batteries.map(record => record.car_year))]; %>
+                <% years.forEach(function(year) { %>
+                    <option value="<%= year %>"><%= year %></option>
+                <% }); %>
+            </select>
+        </div>
+
         <!-- Search Bar -->
         <input type="search" id="search-bar" placeholder="Search records..." />
+        <button id="clear-search" class="btn">Clear Search</button>
 
         <!-- Alert for Success/Failure -->
         <% if (status && message) { %>
@@ -30,7 +66,7 @@
         <!-- Card Layout for Records -->
         <div class="cards-container">
             <% batteries.forEach(function(record) { %>
-            <div class="card">
+            <div class="card" data-brand="<%= record.car_brand %>" data-model="<%= record.car_model %>" data-year="<%= record.car_year %>">
                 <h3><%= record.car_brand %> - <%= record.car_model %> (<%= record.car_year %>)</h3>
                 <p><strong>Battery Brand:</strong> <%= record.battery_brand %> </p>
                 <p><strong>Battery Model:</strong> <%= record.battery_model %> </p>
@@ -53,19 +89,65 @@
 
     <script>
         const searchBar = document.getElementById('search-bar');
+        const clearSearchButton = document.getElementById('clear-search');
+        const brandFilter = document.getElementById('brand-filter');
+        const modelFilter = document.getElementById('model-filter');
+        const yearFilter = document.getElementById('year-filter');
         const cards = document.querySelectorAll('.card');
 
-        searchBar.addEventListener('input', function() {
+        // Debounce function to optimize search input handling
+        let debounceTimer;
+        function debounceSearch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => filterRecords(), 300);
+        }
+
+        function highlightMatchingText(text, query) {
+            const regex = new RegExp(query, 'gi');  // Global, case-insensitive search
+            return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+        }
+
+        function filterRecords() {
             const query = searchBar.value.toLowerCase();
+            const selectedBrand = brandFilter.value.toLowerCase();
+            const selectedModel = modelFilter.value.toLowerCase();
+            const selectedYear = yearFilter.value.toLowerCase();
 
             cards.forEach(card => {
-                let cardData = card.textContent.toLowerCase();
-                if (cardData.includes(query)) {
+                const cardText = card.textContent.toLowerCase();
+                const cardBrand = card.getAttribute('data-brand').toLowerCase();
+                const cardModel = card.getAttribute('data-model').toLowerCase();
+                const cardYear = card.getAttribute('data-year').toLowerCase();
+
+                // Check if the card matches the search query and selected filters
+                const matchesSearch = cardText.includes(query);
+                const matchesBrand = selectedBrand ? cardBrand.includes(selectedBrand) : true;
+                const matchesModel = selectedModel ? cardModel.includes(selectedModel) : true;
+                const matchesYear = selectedYear ? cardYear.includes(selectedYear) : true;
+
+                if (matchesSearch && matchesBrand && matchesModel && matchesYear) {
                     card.style.display = ''; // Show the card
+                    // Highlight matching text in the card
+                    if (query) {
+                        card.innerHTML = card.innerHTML.replace(/<span class="highlight">.*?<\/span>/g, function(match) {
+                            return match; // Remove previous highlights
+                        });
+                        card.innerHTML = highlightMatchingText(card.innerHTML, query);
+                    }
                 } else {
                     card.style.display = 'none'; // Hide the card
                 }
             });
+        }
+
+        // Event listeners
+        searchBar.addEventListener('input', debounceSearch);
+        brandFilter.addEventListener('change', filterRecords);
+        modelFilter.addEventListener('change', filterRecords);
+        yearFilter.addEventListener('change', filterRecords);
+        clearSearchButton.addEventListener('click', () => {
+            searchBar.value = '';
+            filterRecords();  // Reset the filter
         });
 
         document.addEventListener("DOMContentLoaded", function () {
