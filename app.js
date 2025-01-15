@@ -22,9 +22,14 @@ const pool = new Pool({
     },
 });
 
-pool.connect()
-    .then(() => console.log('Connected to the database successfully'))
-    .catch(err => console.error('Connection error:', err));
+pool.connect((err, client, release) => {
+    if (err) {
+        console.error('Database connection error details:', err); // Detailed error log
+        return;
+    }
+    console.log('Connected to the database!');
+    release();
+});
 
 console.log('DATABASE_URL:', process.env.DATABASE_URL);
 console.log('Connected to PostgreSQL database.');
