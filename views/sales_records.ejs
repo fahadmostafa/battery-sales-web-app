@@ -29,6 +29,7 @@
 
         <!-- Filter Section -->
         <div class="filter-section">
+            <h3>Filters</h3>
             <label for="brand-filter">Car Brand:</label>
             <select id="brand-filter">
                 <option value="">All</option>
@@ -160,27 +161,26 @@
         });
 
         // Back to top button functionality
-backToTopButton.addEventListener('click', () => {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-});
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
 
-// Show back-to-top button based on scroll position
-let lastScrollY = 0;
-const handleScroll = () => {
-    if (window.scrollY > 300 && window.scrollY > lastScrollY) {
-        backToTopButton.style.opacity = '1';  // Makes button visible
-        backToTopButton.style.transform = 'translateY(0)';  // Moves button into view
-    } else {
-        backToTopButton.style.opacity = '0';  // Hides button
-        backToTopButton.style.transform = 'translateY(100px)';  // Hides button by translating out of view
-    }
-    lastScrollY = window.scrollY;
-};
-window.addEventListener('scroll', handleScroll);
-
+        // Show back-to-top button based on scroll position
+        let lastScrollY = 0;
+        const handleScroll = () => {
+            if (window.scrollY > 300 && window.scrollY > lastScrollY) {
+                backToTopButton.style.opacity = '1';  // Makes button visible
+                backToTopButton.style.transform = 'translateY(0)';  // Moves button into view
+            } else {
+                backToTopButton.style.opacity = '0';  // Hides button
+                backToTopButton.style.transform = 'translateY(100px)';  // Hides button by translating out of view
+            }
+            lastScrollY = window.scrollY;
+        };
+        window.addEventListener('scroll', handleScroll);
 
         // Deleting records
         document.addEventListener("DOMContentLoaded", function () {
