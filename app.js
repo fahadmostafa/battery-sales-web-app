@@ -127,7 +127,7 @@ app.post('/battery-sales-entry', async (req, res) => {
 });
 
 app.get('/battery-sales-records', async (req, res) => {
-    const { page = 1, limit = 20 } = req.query; // Default to 20 records per page
+    const { page = 1, limit = 20, status = '', message = '' } = req.query; // Default to empty strings if not set
     const offset = (page - 1) * limit;
 
     const selectQuery = `
@@ -143,7 +143,7 @@ app.get('/battery-sales-records', async (req, res) => {
             record.date_sold = dayjs(record.date_sold).format('DD-MM-YYYY');
         });
 
-        res.render('sales_records', { batteries: rows });
+        res.render('sales_records', { batteries: rows, status, message });
     } catch (error) {
         console.error('Error fetching records:', error);
         res.send('Error fetching records.');
