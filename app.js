@@ -16,15 +16,22 @@ const PORT = process.env.PORT || 3001;
 
 // PostgreSQL connection setup
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false, // Necessary for connecting to Render's managed database
-    },
+    connectionString: process.env.DATABASE_URL || '',
+    ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes("railway.app")
+        ? { rejectUnauthorized: false } // Necessary for Railway's managed database
+        : false,
+    max: 10, // Max connections in the pool
+    idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
 });
+
+if (!process.env.DATABASE_URL) {
+    console.error('Error: DATABASE_URL environment variable is not set.');
+    process.exit(1); // Exit the application if the database URL is missing
+}
 
 pool.connect((err, client, release) => {
     if (err) {
-        console.error('Database connection error details:', err); // Detailed error log
+        console.error('Database connection error details:', err);
         return;
     }
     console.log('Connected to the database!');
@@ -38,18 +45,18 @@ console.log('Connected to PostgreSQL database.');
 const createTableQuery = `
     CREATE TABLE IF NOT EXISTS batteries (
         id SERIAL PRIMARY KEY,
-        car_brand TEXT,
-        car_model TEXT,
+        car_brand VARCHAR(100),
+        car_model VARCHAR(100),
         car_year INTEGER,
-        battery_brand TEXT,
-        battery_model TEXT,
-        battery_ampere TEXT,
-        battery_serial TEXT,
-        price_sold_at REAL,
-        currency TEXT,
-        payment_mode TEXT,
+        battery_brand VARCHAR(100),
+        battery_model VARCHAR(100),
+        battery_ampere VARCHAR(50),
+        battery_serial VARCHAR(255),
+        price_sold_at NUMERIC(10, 2),
+        currency VARCHAR(10),
+        payment_mode VARCHAR(50),
         date_sold DATE,
-        entry_time TEXT
+        entry_time TIMESTAMP
     );
 `;
 
@@ -82,30 +89,21 @@ app.post('/battery-sales-entry', async (req, res) => {
         price_sold_at, date_sold, currency, payment_mode
     } = req.body;
 
-    // Validate price_sold_at
     if (isNaN(price_sold_at) || price_sold_at <= 0) {
         return res.send('Invalid price.');
     }
 
-    console.log('Raw date_sold:', date_sold);
-
-    // Try to parse the date using both 'DD-MM-YYYY' and 'YYYY-MM-DD' formats
-    let formattedDate = dayjs(date_sold, 'DD-MM-YYYY', true); 
+    let formattedDate = dayjs(date_sold, 'DD-MM-YYYY', true);
     if (!formattedDate.isValid()) {
-        formattedDate = dayjs(date_sold, 'YYYY-MM-DD', true); 
+        formattedDate = dayjs(date_sold, 'YYYY-MM-DD', true);
     }
-
-    console.log('Parsed date:', formattedDate.isValid(), formattedDate.format());
 
     if (!formattedDate.isValid()) {
         return res.send('Invalid date. Please make sure the format is DD-MM-YYYY or YYYY-MM-DD.');
     }
 
-    const formattedDateString = formattedDate.format('YYYY-MM-DD'); // Format to 'YYYY-MM-DD'
-
-    // Generate entry_time in UAE timezone with 12-hour format
-    const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD hh:mm:ss A');
-    console.log('Entry Time (UAE, 12-hour format):', entryTime);
+    const formattedDateString = formattedDate.format('YYYY-MM-DD');
+    const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD HH:mm:ss');
 
     const insertQuery = `
         INSERT INTO batteries (
@@ -121,7 +119,6 @@ app.post('/battery-sales-entry', async (req, res) => {
             battery_model, battery_ampere, battery_serial,
             price_sold_at, currency, payment_mode, formattedDateString, entryTime
         ]);
-        console.log('Data saved successfully!');
         res.redirect('/battery-sales-records?status=success');
     } catch (error) {
         console.error('Error saving data:', error);
@@ -129,40 +126,24 @@ app.post('/battery-sales-entry', async (req, res) => {
     }
 });
 
-app.post('/delete-record', async (req, res) => {
-    const { id } = req.body;
-
-    if (!id) {
-        return res.status(400).json({ status: 'error', message: 'Invalid Record ID' });
-    }
-
-    try {
-        const deleteQuery = `DELETE FROM batteries WHERE id = $1`;
-        const result = await pool.query(deleteQuery, [id]);
-
-        if (result.rowCount > 0) {
-            console.log(`Record with ID ${id} deleted.`);
-            return res.status(200).json({ status: 'success', message: 'Record deleted successfully' });
-        } else {
-            return res.status(404).json({ status: 'error', message: 'Record not found' });
-        }
-    } catch (error) {
-        console.error('Error deleting record:', error);
-        return res.status(500).json({ status: 'error', message: 'Server error occurred while deleting the record' });
-    }
-});
-
 app.get('/battery-sales-records', async (req, res) => {
-    const selectQuery = `SELECT * FROM batteries`;
+    const { page = 1, limit = 20 } = req.query; // Default to 20 records per page
+    const offset = (page - 1) * limit;
+
+    const selectQuery = `
+        SELECT * FROM batteries
+        ORDER BY date_sold DESC
+        LIMIT $1 OFFSET $2
+    `;
+
     try {
-        const { rows } = await pool.query(selectQuery);
+        const { rows } = await pool.query(selectQuery, [limit, offset]);
 
         rows.forEach(record => {
-            record.date_sold = dayjs(new Date(record.date_sold)).format('DD-MM-YYYY');
+            record.date_sold = dayjs(record.date_sold).format('DD-MM-YYYY');
         });
 
-        const { status, message } = req.query;
-        res.render('sales_records', { batteries: rows, status, message });
+        res.render('sales_records', { batteries: rows });
     } catch (error) {
         console.error('Error fetching records:', error);
         res.send('Error fetching records.');
@@ -195,18 +176,8 @@ app.get('/download-records', async (req, res) => {
 
         rows.forEach(record => {
             worksheet.addRow({
-                car_brand: record.car_brand,
-                car_model: record.car_model,
-                car_year: record.car_year,
-                battery_brand: record.battery_brand,
-                battery_model: record.battery_model,
-                battery_ampere: record.battery_ampere,
-                battery_serial: record.battery_serial,
-                price_sold_at: record.price_sold_at,
-                currency: record.currency,
-                payment_mode: record.payment_mode,
+                ...record,
                 date_sold: dayjs(record.date_sold).format('DD-MM-YYYY'),
-                entry_time: record.entry_time
             });
         });
 
