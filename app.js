@@ -152,6 +152,30 @@ app.get('/battery-sales-records', async (req, res) => {
     }
 });
 
+app.post('/delete-record', async (req, res) => {
+    const { id } = req.body; // Get the id of the record to delete
+
+    if (!id) {
+        return res.json({ status: 'error', message: 'Invalid record ID.' });
+    }
+
+    const deleteQuery = 'DELETE FROM batteries WHERE id = $1';
+
+    try {
+        const result = await pool.query(deleteQuery, [id]);
+
+        if (result.rowCount > 0) {
+            res.json({ status: 'success', message: 'Record deleted successfully.' });
+        } else {
+            res.json({ status: 'error', message: 'Record not found.' });
+        }
+    } catch (error) {
+        console.error('Error deleting record:', error);
+        res.json({ status: 'error', message: 'An error occurred while deleting the record.' });
+    }
+});
+
+
 app.get('/download-records', async (req, res) => {
     const selectQuery = `SELECT * FROM batteries`;
 
