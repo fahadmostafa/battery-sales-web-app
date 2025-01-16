@@ -64,10 +64,11 @@
 
         <!-- Alert for Success/Failure -->
         <% if (status && message) { %>
-        <div class="alert <%= status === 'success' ? 'alert-success' : 'alert-error' %>">
-            <%= message %>
-        </div>
-        <% } %>
+    <div class="alert <%= status === 'success' ? 'alert-success' : 'alert-error' %>">
+        <%= message %>
+    </div>
+<% } %>
+
 
         <!-- Card Layout for Records -->
         <div class="cards-container">
