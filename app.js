@@ -105,7 +105,7 @@ app.post('/battery-sales-entry', async (req, res) => {
     const formattedDateString = formattedDate.format('YYYY-MM-DD');
 
     // Set entry_time to UAE time zone
-    const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD hh:mm:ss A');  // Format as YYYY-MM-DD HH:mm:ss for consistency
+    const entryTime = dayjs().tz('Asia/Dubai').format('YYYY-MM-DD hh:mm:ss A');  // Format as YYYY-MM-DD hh:mm:ss A (12 hour) for consistency
 
     const insertQuery = `
         INSERT INTO batteries (
@@ -143,6 +143,7 @@ app.get('/battery-sales-records', async (req, res) => {
 
         rows.forEach(record => {
             record.date_sold = dayjs(record.date_sold).format('DD-MM-YYYY');
+			record.entry_time = dayjs(record.entry_time).format('YYYY-MM-DD hh:mm:ss A'); // Apply AM/PM formatting
         });
 
         res.render('sales_records', { batteries: rows, status, message });
